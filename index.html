@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hannah's Birthday Surprise</title>
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      /* New vibe: clean dark modern (navy + purple + soft gold accents) */
+      --bg: #0f172a;
+      --text-dark: #e5e7eb;
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+      --accent: linear-gradient(135deg, #6366f1, #a855f7, #f59e0b);
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+      background: #020617;
+      color: var(--text-dark);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,0.62), transparent 20%),
+        radial-gradient(circle at 85% 14%, rgba(255,255,255,0.5), transparent 18%),
+        radial-gradient(circle at 50% 85%, rgba(255,255,255,0.35), transparent 25%);
+      pointer-events: none;
+    }
+
+    #sparkles {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .top-controls {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      gap: 10px;
+      z-index: 5;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: rgba(15,23,42,0.75);
+      color: #e5e7eb;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(34, 94, 60, 0.12);
+    }
+
+    .app {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(24px) scale(0.985);
+      filter: blur(6px);
+      transition: opacity 0.8s ease, transform 0.8s ease, filter 0.8s ease;
+      text-align: center;
+    }
+
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+
+    .hello-kitty {
+      width: min(22vw, 120px);
+      min-width: 72px;
+      aspect-ratio: 1;
+      border-radius: 28px;
+      background: rgba(255,255,255,0.38);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(46px, 8vw, 78px);
+      margin-bottom: 18px;
+      animation: bounce 2.4s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .title {
+      font-size: clamp(28px, 5vw, 58px);
+      line-height: 1.08;
+      letter-spacing: 0.02em;
+      color: #e5e7eb;
+      text-shadow: 0 2px 0 rgba(255,255,255,0.55);
+      margin: 0 0 10px;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      font-size: clamp(14px, 2.3vw, 20px);
+      color: #cbd5f5;
+      margin: 0 0 24px;
+      max-width: 760px;
+    }
+
+    .small-note {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 12px;
+    }
+
+    .section-note {
+      margin-top: 10px;
+      min-height: 26px;
+      color: #cbd5f5;
+      font-size: clamp(14px, 1.8vw, 18px);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      text-shadow: 0 0 12px rgba(255,255,255,0.12);
+    }
+
+    .btn {
+      border: none;
+      padding: 14px 24px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: white;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 10px 26px rgba(226, 83, 173, 0.22);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover { transform: translateY(-2px) scale(1.02); }
+    .btn:active { transform: scale(0.98); }
+
+    .ghost {
+      background: rgba(15,23,42,0.75);
+      color: #c05695;
+      box-shadow: none;
+      border: 1px solid rgba(192, 95, 148, 0.16);
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .loader-wrap {
+      width: min(80vw, 460px);
+      height: 14px;
+      background: rgba(15,23,42,0.75);
+      border-radius: 999px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.5);
+      margin-top: 16px;
+    }
+
+    .loader-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #6366f1, #a855f7, #f59e0b);
+      border-radius: 999px;
+      transition: width 0.25s linear;
+    }
+
+    .cake-area {
+      position: relative;
+      width: min(86vw, 720px);
+      height: min(56vh, 420px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .cake-hint {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: clamp(18px, 3vw, 38px);
+      color: #e5e7eb;
+      font-weight: 800;
+      width: 100%;
+    }
+
+    .cake {
+      position: relative;
+      width: min(68vw, 360px);
+      height: min(48vw, 280px);
+      min-width: 220px;
+      min-height: 180px;
+      margin-top: 40px;
+      transition: transform 0.4s ease;
+    }
+
+    .plate {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 88%;
+      height: 22px;
+      background: #f59e0b;
+      border-radius: 999px;
+      box-shadow: 0 8px 0 rgba(231, 180, 49, 0.35);
+    }
+
+    .layer {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .layer.bottom {
+      bottom: 18px;
+      width: 78%;
+      height: 84px;
+      background: linear-gradient(180deg, #d9efe5, #bfe3d2);
+    }
+
+    .layer.top {
+      bottom: 118px;
+      width: 50%;
+      height: 54px;
+      background: linear-gradient(180deg, #eef8f2, #dcefe4);
+    }
+
+    .layer.middle {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 68px;
+      width: 64%;
+      height: 64px;
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      background: linear-gradient(180deg, #e3f3ea, #cfe8d9);
+    }
+
+    .layer.middle {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 68px;
+      width: 64%;
+      height: 64px;
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      background: linear-gradient(180deg, #e3f3ea, #cfe8d9);
+    }
+
+    .icing {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.78));
+      border-radius: 22px;
+      clip-path: polygon(0 0, 100% 0, 100% 42%, 90% 52%, 80% 42%, 69% 56%, 58% 44%, 48% 56%, 36% 44%, 24% 56%, 12% 42%, 0 54%);
+    }
+
+    .candle {
+      position: absolute;
+      width: 18px;
+      height: 62px;
+      background: repeating-linear-gradient(45deg, #fff 0 8px, #9fd5b6 8px 16px);
+      border-radius: 10px;
+      bottom: 165px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: var(--shadow);
+    }
+
+    .flame {
+      position: absolute;
+      width: 20px;
+      height: 28px;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(circle at 50% 30%, #fff6bf 0%, #ffcc5e 45%, #ff8e35 76%, rgba(255,142,53,0) 78%);
+      border-radius: 50% 50% 50% 50% / 56% 56% 44% 44%;
+      animation: flicker 0.8s ease-in-out infinite alternate;
+      transform-origin: center bottom;
+    }
+
+    @keyframes flicker {
+      from { transform: translateX(-50%) scale(1) rotate(-3deg); opacity: 0.95; }
+      to { transform: translateX(-50%) scale(1.08) rotate(4deg); opacity: 1; }
+    }
+
+    .cut-line {
+      position: absolute;
+      width: 8px;
+      height: 0;
+      background: rgba(255,255,255,0.9);
+      top: 10%;
+      left: 52%;
+      border-radius: 999px;
+      box-shadow: 0 0 18px rgba(255,255,255,0.9);
+      opacity: 0;
+      transform: rotate(22deg);
+      transition: height 0.35s ease, opacity 0.35s ease;
+    }
+
+    .cake.cut .cut-line {
+      height: 78%;
+      opacity: 1;
+    }
+
+    .cake.cut { transform: scale(1.04) rotate(-2deg); }
+
+    .memories-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 320px;
+      position: relative;
+      margin: 12px 0 18px;
+    }
+
+    .stack {
+      position: relative;
+      width: min(70vw, 360px);
+      height: min(88vw, 430px);
+      max-height: 56vh;
+      touch-action: pan-y;
+      user-select: none;
+    }
+
+    .photo-card {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.65);
+      border-radius: 24px;
+      padding: 12px;
+      box-shadow: 0 20px 36px rgba(0, 0, 0, 0.22);
+      transition: transform 0.6s ease, opacity 0.6s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      justify-content: center; /* CENTER image nicely */
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* FIX: show full image */
+      border-radius: 18px;
+      display: block;
+      background: #0f172a;
+    }
+
+    .photo-caption {
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      bottom: 24px;
+      padding: 12px 16px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.6);
+      color: #ffffff;
+      font-size: clamp(14px, 2vw, 17px);
+      font-weight: 800;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+      backdrop-filter: blur(6px);
+    }
+
+    .message-box {
+      width: min(82vw, 680px);
+      background: rgba(15,23,42,0.75);
+      border: 1px solid rgba(255,255,255,0.5);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      text-align: left;
+      line-height: 1.8;
+      font-size: clamp(15px, 2vw, 19px);
+      color: #e5e7eb;
+      max-height: 58vh;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+
+    .message-title {
+      margin-bottom: 18px;
+      text-align: center;
+      font-size: clamp(28px, 4vw, 44px);
+      color: #e5e7eb;
+      font-weight: 900;
+    }
+
+    .final-card {
+      width: min(86vw, 760px);
+      padding: 28px;
+      border-radius: 30px;
+      background: rgba(15,23,42,0.75);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .final-name {
+      font-size: clamp(32px, 5vw, 62px);
+      color: #e5e7eb;
+      margin: 0 0 8px;
+      font-weight: 900;
+      animation: finalGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes finalGlow {
+      0%, 100% { text-shadow: 0 0 10px rgba(255,255,255,0.12), 0 0 18px rgba(99,102,241,0.10); }
+      50% { text-shadow: 0 0 18px rgba(255,255,255,0.22), 0 0 30px rgba(168,85,247,0.20); }
+    }
+
+    .final-text {
+      font-size: clamp(16px, 2vw, 22px);
+      color: #cbd5f5;
+      margin-bottom: 18px;
+    }
+
+    .floating-hearts {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .floating-hearts span {
+      position: absolute;
+      bottom: -40px;
+      font-size: 24px;
+      animation: rise linear infinite;
+      opacity: 0.7;
+    }
+
+    @keyframes rise {
+      from { transform: translateY(0) translateX(0) scale(0.8); opacity: 0; }
+      15% { opacity: 0.72; }
+      to { transform: translateY(-115vh) translateX(30px) scale(1.18); opacity: 0; }
+    }
+
+    .lock-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 20% 18%, rgba(99,102,241,0.28), transparent 24%),
+        radial-gradient(circle at 80% 82%, rgba(168,85,247,0.18), transparent 22%),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.04), transparent 38%),
+        rgba(2,6,23,0.97);
+      text-align: center;
+      backdrop-filter: blur(14px);
+      overflow: hidden;
+    }
+
+    .lock-overlay::before,
+    .lock-overlay::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(10px);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .lock-overlay::before {
+      width: 220px;
+      height: 220px;
+      top: 8%;
+      left: 10%;
+      background: radial-gradient(circle, rgba(99,102,241,0.24), transparent 70%);
+      animation: floatGlow 8s ease-in-out infinite;
+    }
+
+    .lock-overlay::after {
+      width: 260px;
+      height: 260px;
+      right: 8%;
+      bottom: 6%;
+      background: radial-gradient(circle, rgba(168,85,247,0.18), transparent 70%);
+      animation: floatGlow 10s ease-in-out infinite reverse;
+    }
+
+    @keyframes floatGlow {
+      0%, 100% { transform: translateY(0px) translateX(0px) scale(1); }
+      50% { transform: translateY(-12px) translateX(8px) scale(1.04); }
+    }
+
+    .lock-card {
+      width: min(92vw, 640px);
+      padding: 40px 30px 34px;
+      border-radius: 36px;
+      background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(15,23,42,0.9));
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow:
+        0 24px 60px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 0 0 1px rgba(255,255,255,0.04);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .lock-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.06), transparent 34%, rgba(99,102,241,0.08), transparent 72%);
+      pointer-events: none;
+    }
+
+    .lock-card::after {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,0.05);
+      pointer-events: none;
+    }
+
+    .lock-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      color: #e5e7eb;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    .lock-badge::before {
+      content: "✦";
+      font-size: 11px;
+      opacity: 0.8;
+    }
+
+    .lock-emoji {
+      font-size: 64px;
+      margin: 14px 0 8px;
+      filter: drop-shadow(0 0 18px rgba(255,255,255,0.14));
+      position: relative;
+      z-index: 1;
+    }
+
+    .lock-title {
+      margin: 14px 0 10px;
+      font-size: clamp(30px, 5vw, 50px);
+      line-height: 1.05;
+      color: #e5e7eb;
+      font-weight: 900;
+      position: relative;
+      z-index: 1;
+      max-width: 12ch;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .lock-text {
+      margin: 0;
+      color: #cbd5f5;
+      font-size: clamp(15px, 2vw, 18px);
+      position: relative;
+      z-index: 1;
+    }
+
+    .countdown {
+      font-size: clamp(30px, 6.5vw, 58px);
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      margin: 22px auto 12px;
+      color: #ffffff;
+      width: min(84vw, 460px);
+      padding: 22px 18px;
+      border-radius: 26px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: inset 0 0 24px rgba(255,255,255,0.03), 0 0 28px rgba(99,102,241,0.12);
+      position: relative;
+      z-index: 1;
+    }
+
+    .countdown-label {
+      color: #cbd5f5;
+      font-size: clamp(14px, 2vw, 18px);
+      position: relative;
+      z-index: 1;
+      font-weight: 700;
+    }
+
+    .lock-subtle {
+      margin-top: 12px;
+      color: #94a3b8;
+      font-size: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 640px) {
+      .message-box, .final-card { padding: 18px; }
+      .top-controls { left: 16px; right: 16px; }
+      .stack { width: min(74vw, 280px); height: min(94vw, 350px); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="sparkles"></canvas>
+
+  <div id="lockOverlay" class="lock-overlay">
+    <div class="lock-card">
+      <div class="lock-badge">Birthday Surprise Locked</div>
+      <div class="lock-emoji">🔒</div>
+      <h1 class="lock-title">Your surprise unlocks on April 14</h1>
+      <p class="lock-text">You'll get your birthday gift soon 🎁</p>
+      <div id="countdownTimer" class="countdown">00d 00h 00m 00s</div>
+      <div class="countdown-label">Come back on your birthday</div>
+      <div class="lock-subtle">It’ll be worth the wait ✨</div>
+    </div>
+  </div>
+
+  <div id="micOverlay" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.9);z-index:20;">
+    <div style="width:min(92vw,420px);padding:28px;border-radius:24px;background:rgba(15,23,42,0.96);border:1px solid rgba(255,255,255,0.12);box-shadow:0 18px 40px rgba(0,0,0,0.45);text-align:center;">
+      <div style="font-size:48px;margin-bottom:12px;">🎤</div>
+      <h2 style="margin:0 0 10px;color:#e5e7eb;font-size:30px;">Allow microphone access</h2>
+      <p style="margin:0 0 18px;color:#cbd5f5;line-height:1.5;">Tap below and allow microphone access to continue.</p>
+      <button class="btn" id="enableMicBtn">Enable microphone</button>
+      <div id="micOverlayNote" style="margin-top:12px;color:#94a3b8;font-size:13px;min-height:18px;"></div>
+    </div>
+  </div>
+
+  <div class="top-controls">
+    <button class="pill" id="musicToggle">♫ Music</button>
+    <button class="pill" id="restartBtn">↺ Restart</button>
+  </div>
+
+  <audio id="bgMusic" loop>
+    <source src="birthday-song.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="app">
+    <section class="screen active" id="screen-loading">
+      <!-- restored loading screen -->
+      <div class="hello-kitty">🎀</div>
+      <h1 class="title">Loading your birthday surprise...</h1>
+      <p class="subtitle">I made something cool just for you, Hannah.</p>
+      <div class="loader-wrap"><div class="loader-bar" id="loaderBar"></div></div>
+      <div class="small-note">Wait for the magic ✨</div>
+    </section>
+
+    <section class="screen" id="screen-intro">
+      <!-- restored intro screen -->
+      <div class="hello-kitty"><img src="p1harmony.jpg" alt="P1Harmony" style="width:100%;height:100%;object-fit:cover;border-radius:28px;"></div>
+      <h1 class="title">Happy <span id="ageText">20th</span> Birthday, Hannah!</h1>
+      <p class="subtitle">Just a small surprise made for you.</p>
+      <button class="btn" id="startBtn">🎁 Open the surprise</button>
+    </section>
+
+    <section class="screen" id="screen-countdown">
+      <!-- restored countdown screen -->
+      <div class="hello-kitty"><img src="ampersandone.jpg" alt="AMPERS&ONE" style="width:100%;height:100%;object-fit:cover;border-radius:28px;"></div>
+      <h1 class="title">Birthday countdown for Hannah</h1>
+      <p class="subtitle">A few seconds before the surprise begins...</p>
+      <div id="countdownNumber" style="font-size: clamp(64px, 16vw, 150px); font-weight: 900; color: #e5e7eb; line-height: 1; margin: 10px 0 14px;">5</div>
+    </section>
+
+    <section class="screen" id="screen-cake">
+      <div class="cake-area" id="cakeArea">
+        <div class="cake-hint">🎂 Blow out the candle 🎂</div>
+        <div class="section-note" id="micNote">✨ First, make a birthday wish ✨</div>
+        <div class="cake" id="cake">
+          <div class="candle"><div class="flame" id="flame"></div></div>
+          <div class="layer top"><div class="icing"></div></div>
+          <div class="layer middle"><div class="icing"></div></div>
+          <div class="layer bottom"><div class="icing"></div></div>
+          <div class="plate"></div>
+          <div class="cut-line"></div>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn ghost" id="skipCakeBtn">Skip to memories</button>
+      </div>
+      <div class="section-note" id="cakeNote"></div>
+      <div class="small-note">Drag your mouse or finger across the screen</div>
+    </section>
+
+    <section class="screen" id="screen-memories">
+      <h1 class="title">Some Sweet Moments</h1>
+      <p class="subtitle">A few memories</p>
+      <div class="section-note" id="memoriesNote"></div>
+      <div class="memories-wrap">
+        <div class="stack" id="memoryStack">
+          <div class="photo-card"><img src="photo1.jpg" alt="Memory 1"><div class="photo-caption">🍌 BANANA 🍌</div></div>
+          <div class="photo-card"><img src="photo2.jpg" alt="Memory 2"><div class="photo-caption">OG Trio</div></div>
+          <div class="photo-card"><img src="photo3.jpg" alt="Memory 3"><div class="photo-caption">Faviorite Mom</div></div>
+          <div class="photo-card"><img src="photo4.jpg" alt="Memory 4"><div class="photo-caption">Other Mom</div></div>
+          <div class="photo-card"><img src="photo5.jpg" alt="Memory 5"><div class="photo-caption">🎡 Ended the night like this 🎡</div></div>
+          <div class="photo-card"><img src="photo6.jpg" alt="Memory 6"><div class="photo-caption">Gas was sacrificed for the ID 😭</div></div>
+          <div class="photo-card"><img src="photo7.jpg" alt="Memory 7"><div class="photo-caption">🍦 FROYO 🍨</div></div>
+          <div class="photo-card"><img src="photo8.jpg" alt="Memory 8"><div class="photo-caption">☕ Cafe Side Quest ☕</div></div>
+          <div class="photo-card"><img src="photo9.jpg" alt="Memory 9"><div class="photo-caption">Provider of Kpop Songs💜</div></div>
+          <div class="photo-card"><img src="photo10.jpg" alt="Memory 9"><div class="photo-caption">Our First Semester Together</div></div>
+          <div class="photo-card"><img src="photo11.jpg" alt="Memory 10"><div class="photo-caption">Aggie Family</div></div>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn" id="nextPhotoBtn">📷 Next photo</button>
+        <button class="btn" id="finishMemoriesBtn">✨ Continue</button>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-note">
+      <div class="message-title">A Message For You</div>
+      <div class="message-box" id="messageBox"></div>
+      <div class="row" style="margin-top:18px;">
+        <button class="btn" id="toFinalBtn">✨ Final surprise</button>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-final">
+      <div class="floating-hearts" id="floatingHearts"></div>
+      <div class="final-card">
+        <h1 class="final-name">Happy Birthday, Hannah 🎉</h1>
+        <div class="section-note" id="finalNote"></div>
+        <div class="final-text">I really hope you liked this. You deserve an amazing birthday and even better memories ahead.</div>
+        <div class="row">
+          <button class="btn ghost" id="replayFlowBtn">↺ Replay surprise</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const unlockDate = new Date("April 14, 2026 00:00:00").getTime();
+    const screens = document.querySelectorAll('.screen');
+    const loaderBar = document.getElementById('loaderBar');
+    const startBtn = document.getElementById('startBtn');
+    const musicToggle = document.getElementById('musicToggle');
+    const restartBtn = document.getElementById('restartBtn');
+    const bgMusic = document.getElementById('bgMusic');
+    const countdownNumber = document.getElementById('countdownNumber');
+    const nextPhotoBtn = document.getElementById('nextPhotoBtn');
+    const finishMemoriesBtn = document.getElementById('finishMemoriesBtn');
+    let slideshowInterval = null;
+    const skipCakeBtn = document.getElementById('skipCakeBtn');
+    const toFinalBtn = document.getElementById('toFinalBtn');
+    const replayFlowBtn = document.getElementById('replayFlowBtn');
+    const cakeArea = document.getElementById('cakeArea');
+    const cake = document.getElementById('cake');
+    const flame = document.getElementById('flame');
+    const floatingHearts = document.getElementById('floatingHearts');
+    const memoryStack = document.getElementById('memoryStack');
+    const messageBox = document.getElementById('messageBox');
+    const cakeNote = document.getElementById('cakeNote');
+    const memoriesNote = document.getElementById('memoriesNote');
+    const finalNote = document.getElementById('finalNote');
+    const micNote = document.getElementById('micNote');
+    const micOverlay = document.getElementById('micOverlay');
+    const enableMicBtn = document.getElementById('enableMicBtn');
+    const micOverlayNote = document.getElementById('micOverlayNote');
+    const lockOverlay = document.getElementById('lockOverlay');
+    const countdownTimer = document.getElementById('countdownTimer');
+
+    const sparklesCanvas = document.getElementById('sparkles');
+    const ctx = sparklesCanvas.getContext('2d');
+    let w = sparklesCanvas.width = window.innerWidth;
+    let h = sparklesCanvas.height = window.innerHeight;
+
+    let musicStarted = false;
+    let startX = 0;
+    let startY = 0;
+    let memoryTouchStartX = 0;
+    let memoryTouchStartY = 0;
+    let cakeCut = false;
+    let countdownRunning = false;
+    let photoIndex = 0;
+    let typingStarted = false;
+    let micStream = null;
+    let audioContext = null;
+    let analyser = null;
+    let micData = null;
+    let micRAF = null;
+    let blowFrames = 0;
+
+    const noteText = `Happy Birthday, Hannah! I hope you have an amzing day. You’ve always been an amazing friend and I’m glad you came into my life. Hope this brings a smile to your face and makes your birthday a little more special. Enjoy every second of your day!`;
+    const cakeMessage = 'Blow into the microphone 🎤';
+    const memoriesMessage = 'Here are a few moments I picked for you';
+    const finalMessage = 'One last thing…';
+
+    function resize() {
+      w = sparklesCanvas.width = window.innerWidth;
+      h = sparklesCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+
+    function typeSectionMessage(element, text, speed = 28) {
+      if (!element) return;
+      element.textContent = '';
+      let i = 0;
+      const typer = setInterval(() => {
+        element.textContent += text.charAt(i);
+        i++;
+        if (i >= text.length) clearInterval(typer);
+      }, speed);
+    }
+
+    function showScreen(id) {
+      screens.forEach(screen => screen.classList.remove('active'));
+      const target = document.getElementById(id);
+      if (target) target.classList.add('active');
+
+      if (slideshowInterval) {
+        clearInterval(slideshowInterval);
+        slideshowInterval = null;
+      }
+
+      if (id === 'screen-cake') {
+        typeSectionMessage(cakeNote, cakeMessage, 24);
+        startMicBlowListener();
+      } else {
+        stopMicBlowListener();
+      }
+      if (id === 'screen-memories') {
+        updateMemoryView();
+        startSlideshow();
+        typeSectionMessage(memoriesNote, memoriesMessage, 24);
+      }
+      if (id === 'screen-note') startTypingNote();
+      if (id === 'screen-final') {
+        createHearts();
+        typeSectionMessage(finalNote, finalMessage, 30);
+      }
+    }
+
+    function tryStartMusic() {
+      if (musicStarted) return;
+      bgMusic.volume = 0.6;
+      bgMusic.play().then(() => {
+        musicStarted = true;
+        musicToggle.textContent = '♫ Pause';
+      }).catch(() => {
+        musicToggle.textContent = '♫ Tap to play';
+      });
+    }
+
+    musicToggle.addEventListener('click', async () => {
+      try {
+        if (bgMusic.paused) {
+          await bgMusic.play();
+          musicStarted = true;
+          musicToggle.textContent = '♫ Pause';
+        } else {
+          bgMusic.pause();
+          musicToggle.textContent = '♫ Music';
+        }
+      } catch (e) {
+        alert('Add your song file and rename it birthday-song.mp3');
+      }
+    });
+
+    function resetFlow(toLoading = true) {
+      cakeCut = false;
+      countdownRunning = false;
+      photoIndex = 0;
+      typingStarted = false;
+      messageBox.textContent = '';
+      cake.classList.remove('cut');
+      flame.style.display = 'block';
+      countdownNumber.textContent = '5';
+      if (toLoading) {
+        showScreen('screen-loading');
+        runLoader();
+      } else {
+        showScreen('screen-intro');
+      }
+    }
+
+    restartBtn.addEventListener('click', () => resetFlow(true));
+    replayFlowBtn.addEventListener('click', () => resetFlow(false));
+
+    startBtn.addEventListener('click', () => {
+      tryStartMusic();
+      startCountdownFlow();
+    });
+
+    function runLoader() {
+      let progress = 0;
+      loaderBar.style.width = '0%';
+      const interval = setInterval(() => {
+        progress += 4;
+        loaderBar.style.width = progress + '%';
+        if (progress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => showScreen('screen-intro'), 450);
+        }
+      }, 90);
+    }
+
+    function startCountdownFlow() {
+      if (countdownRunning) return;
+      showScreen('screen-countdown');
+      countdownRunning = true;
+      let count = 5;
+      countdownNumber.textContent = count;
+      const timer = setInterval(() => {
+        count--;
+        countdownNumber.textContent = count > 0 ? count : '🎉';
+        if (count <= 0) {
+          clearInterval(timer);
+          burstConfetti();
+          setTimeout(() => {
+            showScreen('screen-cake');
+            countdownRunning = false;
+            countdownNumber.textContent = '5';
+          }, 900);
+        }
+      }, 1000);
+    }
+
+    async function startMicBlowListener() {
+      if (micRAF || cakeCut) return;
+      if (!micStream) {
+        if (micNote) micNote.textContent = 'Microphone not enabled — tap or swipe instead.';
+        return;
+      }
+
+      try {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioContext.state === 'suspended') {
+          await audioContext.resume();
+        }
+
+        if (!analyser) {
+          const source = audioContext.createMediaStreamSource(micStream);
+          analyser = audioContext.createAnalyser();
+          analyser.fftSize = 512;
+          analyser.smoothingTimeConstant = 0.1;
+          source.connect(analyser);
+        }
+
+        micData = new Uint8Array(analyser.frequencyBinCount);
+        let baseline = 0;
+        let calibrated = false;
+        let calibrationFrames = 0;
+        blowFrames = 0;
+
+        const detectBlow = () => {
+          if (!analyser || cakeCut) return;
+
+          analyser.getByteFrequencyData(micData);
+          let sum = 0;
+          let high = 0;
+          for (let i = 0; i < micData.length; i++) {
+            sum += micData[i];
+            if (i > 8) high += micData[i];
+          }
+          const avg = sum / micData.length;
+          const highAvg = high / Math.max(1, micData.length - 9);
+
+          if (!calibrated) {
+            baseline = (baseline * calibrationFrames + avg) / (calibrationFrames + 1);
+            calibrationFrames += 1;
+            if (calibrationFrames >= 30) calibrated = true;
+            micRAF = requestAnimationFrame(detectBlow);
+            return;
+          }
+
+          const delta = avg - baseline;
+          const strongBlow = delta > 42 || highAvg > baseline + 50; /* slightly more sensitive */
+          const mediumBlow = delta > 34 || highAvg > baseline + 40; /* slightly more sensitive */
+
+          if (strongBlow) {
+            blowFrames += 2;
+          } else if (mediumBlow) {
+            blowFrames += 1;
+          } else {
+            blowFrames = Math.max(0, blowFrames - 1);
+            baseline = baseline * 0.985 + avg * 0.015;
+          }
+
+          if (micNote) micNote.textContent = '✨ First, make a birthday wish ✨';
+
+          if (blowFrames >= 12) { /* a little easier to trigger */
+            blowFrames = 0;
+            if (micNote) micNote.textContent = 'You blew it out! ✨';
+            blowCandle();
+            return;
+          }
+
+          micRAF = requestAnimationFrame(detectBlow);
+        };
+
+        if (micRAF) cancelAnimationFrame(micRAF);
+        micRAF = requestAnimationFrame(detectBlow);
+      } catch (error) {
+        if (micNote) micNote.textContent = 'Microphone unavailable — tap or swipe instead.';
+      }
+    }
+
+    function stopMicBlowListener() {
+      if (micRAF) {
+        cancelAnimationFrame(micRAF);
+        micRAF = null;
+      }
+      blowFrames = 0;
+    }
+
+    function blowCandle() {
+      if (cakeCut) return;
+      stopMicBlowListener();
+      cakeCut = true;
+
+      // flame fade out
+      flame.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      flame.style.opacity = '0';
+      flame.style.transform = 'translateX(-50%) scale(0.6)';
+      setTimeout(() => {
+        flame.style.display = 'none';
+      }, 600);
+
+      // little cake bounce
+      cake.style.transform = 'scale(1.05)';
+      setTimeout(() => {
+        cake.style.transform = 'scale(1)';
+      }, 300);
+
+      // fake smoke effect
+      const smoke = document.createElement('div');
+      smoke.style.position = 'absolute';
+      smoke.style.top = '-30px';
+      smoke.style.left = '50%';
+      smoke.style.transform = 'translateX(-50%)';
+      smoke.style.width = '20px';
+      smoke.style.height = '20px';
+      smoke.style.background = 'rgba(200,200,200,0.5)';
+      smoke.style.borderRadius = '50%';
+      smoke.style.filter = 'blur(6px)';
+      smoke.style.animation = 'rise 2s ease forwards';
+      document.querySelector('.candle').appendChild(smoke);
+
+      burstConfetti();
+
+      setTimeout(() => {
+        showScreen('screen-memories');
+      }, 1200);
+    }
+
+    function onPointerDown(e) {
+      const point = e.touches ? e.touches[0] : e;
+      startX = point.clientX;
+      startY = point.clientY;
+    }
+
+    function onPointerUp(e) {
+      const point = e.changedTouches ? e.changedTouches[0] : e;
+      const dx = point.clientX - startX;
+      const dy = point.clientY - startY;
+      if (Math.hypot(dx, dy) > 140) blowCandle();
+    }
+
+    cakeArea.addEventListener('mousedown', onPointerDown);
+    cakeArea.addEventListener('mouseup', onPointerUp);
+    cakeArea.addEventListener('touchstart', onPointerDown, { passive: true });
+    cakeArea.addEventListener('touchend', onPointerUp, { passive: true });
+    skipCakeBtn.addEventListener('click', () => showScreen('screen-memories'));
+
+    nextPhotoBtn.addEventListener('click', () => {
+      showNextMemory();
+    });
+
+    finishMemoriesBtn.addEventListener('click', () => showScreen('screen-note'));
+
+    function showNextMemory() {
+      const totalPhotos = memoryStack.querySelectorAll('.photo-card').length;
+      photoIndex = (photoIndex + 1) % totalPhotos;
+      updateMemoryView();
+      if (slideshowInterval) {
+        clearInterval(slideshowInterval);
+        startSlideshow();
+      }
+    }
+
+    function showPreviousMemory() {
+      const totalPhotos = memoryStack.querySelectorAll('.photo-card').length;
+      photoIndex = (photoIndex - 1 + totalPhotos) % totalPhotos;
+      updateMemoryView();
+      if (slideshowInterval) {
+        clearInterval(slideshowInterval);
+        startSlideshow();
+      }
+    }
+
+    function onMemoryTouchStart(e) {
+      const point = e.touches ? e.touches[0] : e;
+      memoryTouchStartX = point.clientX;
+      memoryTouchStartY = point.clientY;
+    }
+
+    function onMemoryTouchEnd(e) {
+      const point = e.changedTouches ? e.changedTouches[0] : e;
+      const dx = point.clientX - memoryTouchStartX;
+      const dy = point.clientY - memoryTouchStartY;
+
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+
+      if (dx < 0) {
+        showNextMemory();
+      } else {
+        showPreviousMemory();
+      }
+    }
+
+    memoryStack.addEventListener('touchstart', onMemoryTouchStart, { passive: true });
+    memoryStack.addEventListener('touchend', onMemoryTouchEnd, { passive: true });
+    toFinalBtn.addEventListener('click', () => showScreen('screen-final'));
+
+    function updateMemoryView() {
+      const cards = memoryStack.querySelectorAll('.photo-card');
+      const total = cards.length;
+
+      cards.forEach((card, i) => {
+        let offset = i - photoIndex;
+        if (offset < 0) offset += total;
+
+        if (offset === 0) {
+          card.style.transform = 'rotate(-4deg) translate(0px, 0px) scale(1)';
+          card.style.zIndex = '4';
+          card.style.opacity = '1';
+        } else if (offset === 1) {
+          card.style.transform = 'rotate(5deg) translate(18px, 6px) scale(0.96)';
+          card.style.zIndex = '3';
+          card.style.opacity = '0.92';
+        } else if (offset === 2) {
+          card.style.transform = 'rotate(11deg) translate(34px, 14px) scale(0.92)';
+          card.style.zIndex = '2';
+          card.style.opacity = '0.82';
+        } else {
+          card.style.transform = 'rotate(16deg) translate(48px, 24px) scale(0.88)';
+          card.style.zIndex = '1';
+          card.style.opacity = '0';
+        }
+      });
+    }
+
+    function startSlideshow() {
+      const totalPhotos = 11;
+      slideshowInterval = setInterval(() => {
+        photoIndex = (photoIndex + 1) % totalPhotos;
+        updateMemoryView();
+      }, 4000); /* slower slideshow */
+    }
+
+    function startTypingNote() {
+      if (typingStarted) return;
+      typingStarted = true;
+      messageBox.textContent = '';
+      let i = 0;
+      const typer = setInterval(() => {
+        messageBox.textContent += noteText.charAt(i);
+        i++;
+        if (i >= noteText.length) clearInterval(typer);
+      }, 18);
+    }
+
+    function createHearts() {
+      floatingHearts.innerHTML = '';
+      for (let i = 0; i < 18; i++) {
+        const span = document.createElement('span');
+        span.textContent = ['🍌','👑','💚','🦦','✨','🎀','🌟','•'][Math.floor(Math.random() * 6)];
+        span.style.left = Math.random() * 100 + '%';
+        span.style.animationDuration = 5 + Math.random() * 5 + 's';
+        span.style.animationDelay = Math.random() * 3 + 's';
+        span.style.fontSize = 18 + Math.random() * 20 + 'px';
+        floatingHearts.appendChild(span);
+      }
+    }
+
+    const sparkles = Array.from({ length: 100 }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: Math.random() * 2.1 + 0.6,
+      a: Math.random(),
+      s: Math.random() * 0.012 + 0.004
+    }));
+
+    const confetti = [];
+
+    function burstConfetti() {
+      for (let i = 0; i < 90; i++) {
+        confetti.push({
+          x: w / 2,
+          y: h / 2,
+          vx: (Math.random() - 0.5) * 10,
+          vy: (Math.random() - 0.8) * 10,
+          size: Math.random() * 8 + 4,
+          color: `hsl(${Math.random() * 360}, 100%, 70%)`,
+          life: 1
+        });
+      }
+    }
+
+    function animateBg() {
+      ctx.clearRect(0, 0, w, h);
+
+      for (const s of sparkles) {
+        s.a += s.s;
+        const alpha = 0.35 + Math.sin(s.a) * 0.25;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.fill();
+      }
+
+      for (let i = confetti.length - 1; i >= 0; i--) {
+        const c = confetti[i];
+        c.x += c.vx;
+        c.y += c.vy;
+        c.vy += 0.12;
+        c.life -= 0.015;
+        ctx.globalAlpha = Math.max(c.life, 0);
+        ctx.fillStyle = c.color;
+        ctx.fillRect(c.x, c.y, c.size, c.size * 0.7);
+        ctx.globalAlpha = 1;
+        if (c.life <= 0) confetti.splice(i, 1);
+      }
+
+      requestAnimationFrame(animateBg);
+    }
+
+    function startBirthdayLock() {
+      const now = Date.now();
+
+      if (now >= unlockDate) {
+        lockOverlay.style.display = 'none';
+        micOverlay.style.display = 'flex';
+        return;
+      }
+
+      lockOverlay.style.display = 'flex';
+      micOverlay.style.display = 'none';
+
+      function updateCountdown() {
+        const now = Date.now();
+        const distance = unlockDate - now;
+
+        if (distance <= 0) {
+          lockOverlay.style.display = 'none';
+          micOverlay.style.display = 'flex';
+          clearInterval(lockInterval);
+          return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((distance / (1000 * 60)) % 60);
+        const seconds = Math.floor((distance / 1000) % 60);
+
+        countdownTimer.textContent =
+          `${String(days).padStart(2, '0')}d ` +
+          `${String(hours).padStart(2, '0')}h ` +
+          `${String(minutes).padStart(2, '0')}m ` +
+          `${String(seconds).padStart(2, '0')}s`;
+      }
+
+      updateCountdown();
+      const lockInterval = setInterval(updateCountdown, 1000);
+    }
+
+    enableMicBtn.addEventListener('click', async () => {
+      micOverlayNote.textContent = 'Requesting microphone access...';
+      try {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          micOverlayNote.textContent = 'Access allowed.';
+        } else {
+          micOverlayNote.textContent = 'Microphone is not supported here. Tap/swipe will still work later.';
+        }
+      } catch (e) {
+        micOverlayNote.textContent = 'Access blocked. You can still continue.';
+      }
+
+      tryStartMusic();
+      setTimeout(() => {
+        micOverlay.style.display = 'none';
+        runLoader();
+      }, 500);
+    });
+
+    updateMemoryView();
+    animateBg();
+    startBirthdayLock();
+  </script>
+</body>
+</html>
